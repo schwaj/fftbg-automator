@@ -14,8 +14,8 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 const initialValues = {
   token: "",
   name: "",
-  amount: Object.keys(BetAmounts)[0],
-  target: Object.keys(BetTargets)[0],
+  amount: Object.values(BetAmounts)[0],
+  target: Object.values(BetTargets)[0],
 };
 export const AutomatorForm = () => {
   const [showPassword, setShowPassword] = useState(false);
