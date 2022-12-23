@@ -1,6 +1,7 @@
 {
   "name": "fftbg-automator",
   "version": "0.1.0",
+  "homepage": "https://schwaj.github.io/fftbg-automator",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.0.14",
@@ -26,6 +27,8 @@
     "yup": "^0.32.11"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -47,6 +50,7 @@
     ]
   },
   "devDependencies": {
-    "@types/tmi.js": "^1.8.2"
+    "@types/tmi.js": "^1.8.2",
+    "gh-pages": "^4.0.0"
   }
 }
