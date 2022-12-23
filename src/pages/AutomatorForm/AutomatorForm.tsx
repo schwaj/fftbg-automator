@@ -188,7 +188,7 @@ export const AutomatorForm = () => {
               <Tabs isFitted>
                 <TabList>
                   {Object.keys(TabItems).map((tab) => {
-                    return <Tab>{tab}</Tab>;
+                    return <Tab key={tab}>{tab}</Tab>;
                   })}
                 </TabList>
                 <TabPanels>
