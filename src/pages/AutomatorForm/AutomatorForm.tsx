@@ -1,23 +1,31 @@
 import { Button, ButtonGroup } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
-import { Center, Container, Link } from "@chakra-ui/layout";
+import { Center, Container, Link, Stack } from "@chakra-ui/layout";
 import { Select } from "@chakra-ui/select";
 import { Field, Form, Formik } from "formik";
 import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { client, Client } from "tmi.js";
 import { sleep } from "../../utils/sleepUtil";
-import { BetAmounts, BetTargets } from "./consts";
+import { BetAmounts, BetTargets, TabItems } from "./consts";
 import { getBetTextFromInput } from "./helpers";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
+import { Checkbox } from "@chakra-ui/checkbox";
+import { BettingTab } from "./BettingTab";
+import { FightingTab } from "./FightingTab";
+import { useToast } from "@chakra-ui/toast";
 
 const initialValues = {
   token: "",
   name: "",
+  bet: true,
   amount: Object.values(BetAmounts)[0],
   target: Object.values(BetTargets)[0],
+  fight: true,
 };
 export const AutomatorForm = () => {
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasClientConnected, setHasClientConnected] = useState(false);
@@ -27,6 +35,18 @@ export const AutomatorForm = () => {
   const [isTournamentComplete, setIsTournamentComplete] = useState(false);
 
   const handleShowPasswordClick = () => setShowPassword(!showPassword);
+
+  useEffect(() => {
+    if (isTournamentComplete) {
+      toast({
+        title: "Tournament finished.",
+        description: "You can start again whenever!",
+        status: "success",
+        duration: null,
+        isClosable: true,
+      });
+    }
+  }, [isTournamentComplete, toast]);
 
   useEffect(() => {
     if (!chatClient) {
@@ -88,6 +108,14 @@ export const AutomatorForm = () => {
     isTournamentActive,
   ]);
 
+  const handleEnableBettingOnChange = (e: BaseSyntheticEvent) => {
+    setFormFields({ ...formFields, bet: e.target.checked });
+  };
+
+  const handleEnableFightingOnChange = (e: BaseSyntheticEvent) => {
+    setFormFields({ ...formFields, fight: e.target.checked });
+  };
+
   const handleAmountOnChange = (e: BaseSyntheticEvent) => {
     setFormFields({ ...formFields, amount: e.target.value });
   };
@@ -116,89 +144,70 @@ export const AutomatorForm = () => {
         >
           {({ values }) => (
             <Form>
-              <Field type="text" name="token">
-                {({ field }: any) => (
-                  <FormControl>
-                    <FormLabel>
-                      <Link
-                        verticalAlign="center"
-                        href="https://twitchapps.com/tmi/"
-                        isExternal
-                      >
-                        Twitch Oath Token <ExternalLinkIcon mx="2px" />
-                      </Link>
-                    </FormLabel>
-                    <InputGroup>
-                      <Input
-                        {...field}
-                        placeholder="Twitch Token"
-                        type={showPassword ? "text" : "password"}
-                      />
-                      <InputRightElement width="4.5rem">
-                        <Button
-                          h="1.75rem"
-                          size="sm"
-                          onClick={handleShowPasswordClick}
+              <Stack direction="row">
+                <Field type="text" name="token">
+                  {({ field }: any) => (
+                    <FormControl>
+                      <FormLabel>
+                        <Link
+                          verticalAlign="center"
+                          href="https://twitchapps.com/tmi/"
+                          isExternal
                         >
-                          {showPassword ? "Hide" : "Show"}
-                        </Button>
-                      </InputRightElement>
-                    </InputGroup>
-                  </FormControl>
-                )}
-              </Field>
-              <Field type="text" name="name">
-                {({ field }: any) => (
-                  <FormControl marginTop={5}>
-                    <FormLabel>Twitch Username</FormLabel>
-                    <Input {...field} placeholder="Twitch Username" />
-                  </FormControl>
-                )}
-              </Field>
-              <Field type="select" name="amount">
-                {({ field }: any) => (
-                  <FormControl marginTop={5}>
-                    <FormLabel>Bet Amount</FormLabel>
-                    <Select
-                      {...field}
-                      value={formFields.amount}
-                      onChange={handleAmountOnChange}
-                    >
-                      {Object.entries(BetAmounts).map(([k, v]) => {
-                        return (
-                          <option key={v} value={v}>
-                            {k}
-                          </option>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
-              </Field>
-              <Field type="select" name="target">
-                {({ field }: any) => (
-                  <FormControl marginTop={5}>
-                    <FormLabel>Bet Target</FormLabel>
-                    <Select
-                      {...field}
-                      value={formFields.target}
-                      onChange={handleTargetOnChange}
-                    >
-                      {Object.entries(BetTargets).map(([k, v]) => {
-                        return (
-                          <option key={v} value={v}>
-                            {k}
-                          </option>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
-              </Field>
-              <Center>
-                Example Bet:{" "}
-                {getBetTextFromInput(formFields.amount, formFields.target)}
-              </Center>
+                          Twitch Oath Token <ExternalLinkIcon mx="2px" />
+                        </Link>
+                      </FormLabel>
+                      <InputGroup>
+                        <Input
+                          {...field}
+                          placeholder="Twitch Token"
+                          type={showPassword ? "text" : "password"}
+                        />
+                        <InputRightElement width="4.5rem">
+                          <Button
+                            h="1.75rem"
+                            size="sm"
+                            onClick={handleShowPasswordClick}
+                          >
+                            {showPassword ? "Hide" : "Show"}
+                          </Button>
+                        </InputRightElement>
+                      </InputGroup>
+                    </FormControl>
+                  )}
+                </Field>
+                <Field type="text" name="name">
+                  {({ field }: any) => (
+                    <FormControl marginTop={5}>
+                      <FormLabel>Twitch Username</FormLabel>
+                      <Input {...field} placeholder="Twitch Username" />
+                    </FormControl>
+                  )}
+                </Field>
+              </Stack>
+              <Tabs isFitted>
+                <TabList>
+                  {Object.keys(TabItems).map((tab) => {
+                    return <Tab>{tab}</Tab>;
+                  })}
+                </TabList>
+                <TabPanels>
+                  <BettingTab
+                    formFields={formFields}
+                    handleEnableBettingOnChange={handleEnableBettingOnChange}
+                    handleAmountOnChange={handleAmountOnChange}
+                    handleTargetOnChange={handleTargetOnChange}
+                  />
+                  <TabPanel>
+                    <FightingTab
+                      formFields={formFields}
+                      handleEnableFightingOnChange={
+                        handleEnableFightingOnChange
+                      }
+                    />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
               <Center>
                 <ButtonGroup marginTop={5}>
                   <Button

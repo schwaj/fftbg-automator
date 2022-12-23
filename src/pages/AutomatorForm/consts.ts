@@ -1,3 +1,8 @@
+export enum TabItems {
+  "Betting" = "BETTING",
+  "Fighting" = "FIGHTING",
+}
+
 export enum BetAmounts {
   "Floor" = "betf",
   "2x Floor" = "bet 2f",
