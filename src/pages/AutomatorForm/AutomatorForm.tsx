@@ -12,8 +12,8 @@ import { getBetTextFromInput } from "./helpers";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const initialValues = {
-  token: "oauth:gpn5wmz13bqw71eux4983vq996b5mz",
-  name: "schwaj",
+  token: "",
+  name: "",
   amount: Object.keys(BetAmounts)[0],
   target: Object.keys(BetTargets)[0],
 };
