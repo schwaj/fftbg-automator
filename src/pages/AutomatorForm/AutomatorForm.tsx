@@ -5,7 +5,7 @@ import { Center, Container, Link } from "@chakra-ui/layout";
 import { Select } from "@chakra-ui/select";
 import { Field, Form, Formik } from "formik";
 import { BaseSyntheticEvent, useEffect, useState } from "react";
-import { Client } from "tmi.js";
+import { client, Client } from "tmi.js";
 import { sleep } from "../../utils/sleepUtil";
 import { BetAmounts, BetTargets } from "./consts";
 import { getBetTextFromInput } from "./helpers";
@@ -23,6 +23,8 @@ export const AutomatorForm = () => {
   const [hasClientConnected, setHasClientConnected] = useState(false);
   const [chatClient, setChatClient] = useState<Client | null>(null);
   const [formFields, setFormFields] = useState(initialValues);
+  const [isTournamentActive, setIsTournamentActive] = useState(false);
+  const [isTournamentComplete, setIsTournamentComplete] = useState(false);
 
   const handleShowPasswordClick = () => setShowPassword(!showPassword);
 
@@ -60,6 +62,15 @@ export const AutomatorForm = () => {
                 getBetTextFromInput(formFields.amount, formFields.target)
               );
             }
+            if (lowerMessage.includes("!fight")) {
+              if (isTournamentActive) {
+                setIsTournamentComplete(true);
+                await chatClient.disconnect();
+              }
+              if (!isTournamentActive) {
+                setIsTournamentActive(true);
+              }
+            }
           }
         });
       });
@@ -69,7 +80,13 @@ export const AutomatorForm = () => {
         setHasClientConnected(false);
       });
     }
-  }, [isLoggedIn, hasClientConnected, chatClient, formFields]);
+  }, [
+    isLoggedIn,
+    hasClientConnected,
+    chatClient,
+    formFields,
+    isTournamentActive,
+  ]);
 
   const handleAmountOnChange = (e: BaseSyntheticEvent) => {
     setFormFields({ ...formFields, amount: e.target.value });
@@ -82,6 +99,7 @@ export const AutomatorForm = () => {
   const handleStartClientClick = (values: any) => {
     setFormFields({ ...values });
     setIsLoggedIn(true);
+    setIsTournamentComplete(false);
   };
 
   const handleStopClientClick = () => {
