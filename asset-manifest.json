@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/fftbg-automator/static/js/main.b0cc80ae.js",
+    "main.js": "/fftbg-automator/static/js/main.e3cc760f.js",
     "index.html": "/fftbg-automator/index.html",
-    "main.b0cc80ae.js.map": "/fftbg-automator/static/js/main.b0cc80ae.js.map"
+    "main.e3cc760f.js.map": "/fftbg-automator/static/js/main.e3cc760f.js.map"
   },
   "entrypoints": [
-    "static/js/main.b0cc80ae.js"
+    "static/js/main.e3cc760f.js"
   ]
 }
