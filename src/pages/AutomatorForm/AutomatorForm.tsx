@@ -78,12 +78,6 @@ export const AutomatorForm = () => {
           setHasClientConnected(true);
           chatClient.on("message", (channel, tags, message, self) => {
             if (self) return;
-            console.log(
-              { isLoggedIn },
-              { isTournamentActive },
-              { isTournamentComplete },
-              { hasClientConnected }
-            );
 
             const lowerMessage = message.toLowerCase();
 
