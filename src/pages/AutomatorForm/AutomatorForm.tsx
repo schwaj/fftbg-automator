@@ -65,7 +65,7 @@ export const AutomatorForm = () => {
           password: formRef.current.values.token,
         },
 
-        channels: ["schwaj"],
+        channels: ["FFTBattleground"],
       });
       setChatClient(client);
     }
@@ -87,7 +87,7 @@ export const AutomatorForm = () => {
 
             const lowerMessage = message.toLowerCase();
 
-            if (tags.username === "schwaj") {
+            if (tags.username === "fftbattleground") {
               if (
                 formRef.current.values.bet === true &&
                 lowerMessage.includes("betting is open for")
