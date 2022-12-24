@@ -122,9 +122,7 @@ export const AutomatorForm = () => {
                 }
               }
             }
-            if (
-              lowerMessage.includes("was victorious! last chance to purchase")
-            ) {
+            if (lowerMessage.includes("before this tournament ends")) {
               if (isTournamentActive) {
                 chatClient?.disconnect().then(() => {
                   isTournamentActive = false;
