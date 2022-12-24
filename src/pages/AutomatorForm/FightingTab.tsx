@@ -29,7 +29,7 @@ export const FightingTab = ({ formValues }: FightingTabPropsType) => {
           <FormControl>
             <Stack direction="row">
               <FormLabel>Enable fighting?</FormLabel>
-              <Switch {...field} defaultChecked></Switch>
+              <Switch {...field}></Switch>
             </Stack>
           </FormControl>
         )}

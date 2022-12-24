@@ -30,7 +30,7 @@ const initialValues = {
   bet: true,
   amount: betAmounts[0].value,
   target: betTargets[0].value,
-  fight: true,
+  fight: false,
   fighterType: "",
 };
 export const AutomatorForm = () => {
@@ -58,7 +58,6 @@ export const AutomatorForm = () => {
   }, [isTournamentComplete, toast]);
 
   useEffect(() => {
-    console.log(formRef.current.values);
     if (!chatClient) {
       const client = new Client({
         options: { debug: true, messagesLogLevel: "info" },
