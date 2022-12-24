@@ -1,18 +1,19 @@
 import { Button, ButtonGroup, IconButton } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
-import { Center, Container, Link, Stack } from "@chakra-ui/layout";
-import { Field, Form, Formik, FormikValues } from "formik";
+import { Center, Link, Stack } from "@chakra-ui/layout";
+import { Field, FieldAttributes, Form, Formik, FormikValues } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { Client } from "tmi.js";
 import { sleep } from "../../utils/sleepUtil";
 import { betAmounts, betTargets, TabItems } from "./consts";
-import { getBetTextFromInput } from "./helpers";
+import { getBetTextFromInput, getFightTextFromInput } from "./helpers";
 import { ExternalLinkIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import { BettingTab } from "./BettingTab";
 import { FightingTab } from "./FightingTab";
 import { useToast } from "@chakra-ui/toast";
+import { Checkbox, Flex } from "@chakra-ui/react";
 
 export type FormValuesType = {
   token: string;
@@ -22,43 +23,36 @@ export type FormValuesType = {
   target: string;
   fight: boolean;
   fighterType: string;
+  fighterParameters: string;
 };
 
+const twitchChatCreds = localStorage.getItem("twitchChatCreds");
+const parsedTiwtchCreds = JSON.parse(twitchChatCreds ?? "{}");
+
 const initialValues = {
-  token: "",
-  username: "",
+  token: !!twitchChatCreds ? parsedTiwtchCreds.token : "",
+  username: !!twitchChatCreds ? parsedTiwtchCreds.username : "",
   bet: true,
   amount: betAmounts[0].value,
   target: betTargets[0].value,
   fight: false,
   fighterType: "",
+  fighterParameters: "",
 };
+
 export const AutomatorForm = () => {
   const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasClientConnected, setHasClientConnected] = useState(false);
   const [chatClient, setChatClient] = useState<Client | null>(null);
-  const [isTournamentActive, setIsTournamentActive] = useState(false);
-  const [isTournamentComplete, setIsTournamentComplete] = useState(false);
+  const [betCount, setBetCount] = useState(0);
   const formRef = useRef<FormikValues>() as any;
 
   const handleShowPasswordClick = () => setShowPassword(!showPassword);
 
   useEffect(() => {
-    if (isTournamentComplete) {
-      toast({
-        title: "Tournament finished.",
-        description: "You can start again whenever!",
-        status: "success",
-        duration: null,
-        isClosable: true,
-      });
-    }
-  }, [isTournamentComplete, toast]);
-
-  useEffect(() => {
-    if (!chatClient) {
+    if (!chatClient && isLoggedIn) {
       const client = new Client({
         options: { debug: true, messagesLogLevel: "info" },
         connection: {
@@ -71,52 +65,121 @@ export const AutomatorForm = () => {
           password: formRef.current.values.token,
         },
 
-        channels: ["FFTBattleground"],
+        channels: ["schwaj"],
       });
       setChatClient(client);
     }
     if (chatClient && isLoggedIn && !hasClientConnected) {
-      chatClient?.connect().then(() => {
-        setHasClientConnected(true);
-        chatClient.on("message", async (channel, tags, message, self) => {
-          if (self) return;
+      chatClient
+        ?.connect()
+        .then(() => {
+          let isTournamentActive = false;
+          let isTournamentComplete = false;
+          setHasClientConnected(true);
+          chatClient.on("message", (channel, tags, message, self) => {
+            if (self) return;
+            console.log(
+              { isLoggedIn },
+              { isTournamentActive },
+              { isTournamentComplete },
+              { hasClientConnected }
+            );
 
-          const lowerMessage = message.toLowerCase();
+            const lowerMessage = message.toLowerCase();
 
-          if (tags.username === "fftbattleground") {
-            if (lowerMessage.includes("betting is open for")) {
-              await sleep(Math.floor(Math.random() * 20000) + 5000);
-              chatClient.say(
-                channel,
-                getBetTextFromInput(
-                  formRef.current.values.amount,
-                  formRef.current.values.target
+            if (tags.username === "schwaj") {
+              if (
+                formRef.current.values.bet === true &&
+                lowerMessage.includes("betting is open for")
+              ) {
+                sleep(Math.floor(Math.random() * 20000) + 5000).then(() => {
+                  chatClient.say(
+                    channel,
+                    getBetTextFromInput(
+                      formRef.current.values.amount,
+                      formRef.current.values.target
+                    )
+                  );
+                  setBetCount(betCount + 1);
+                });
+              }
+              if (
+                lowerMessage.includes(
+                  "you may now !fight to enter the tournament!"
                 )
-              );
+              ) {
+                if (!isTournamentActive) {
+                  isTournamentActive = true;
+                }
+                if (formRef.current.values.fight === true) {
+                  sleep(Math.floor(Math.random() * 20000) + 5000).then(() => {
+                    chatClient.say(
+                      channel,
+                      getFightTextFromInput(
+                        formRef.current.values.fighterType.value,
+                        formRef.current.values.fighterParameters
+                      )
+                    );
+                  });
+                }
+              }
             }
-            if (lowerMessage.includes("!fight")) {
+            if (
+              lowerMessage.includes("was victorious! last chance to purchase")
+            ) {
               if (isTournamentActive) {
-                setIsTournamentComplete(true);
-                await chatClient.disconnect();
-              }
-              if (!isTournamentActive) {
-                setIsTournamentActive(true);
+                chatClient?.disconnect().then(() => {
+                  isTournamentActive = false;
+                  isTournamentComplete = true;
+                  setHasClientConnected(false);
+                  setIsLoggedIn(false);
+                  setChatClient(null);
+                  toast({
+                    title: "Tournament finished.",
+                    description: "You can start again whenever!",
+                    status: "success",
+                    position: "top",
+                    duration: null,
+                    isClosable: true,
+                  });
+                });
               }
             }
-          }
+          });
+        })
+        .catch(() => {
+          toast({
+            title: "Error.",
+            description: "Something went wrong connecting to chat",
+            status: "error",
+            isClosable: true,
+            position: "top",
+          });
+          setHasClientConnected(false);
+          setIsLoggedIn(false);
         });
-      });
     }
     if (chatClient && !isLoggedIn && hasClientConnected) {
       chatClient?.disconnect().then(() => {
         setHasClientConnected(false);
+        setChatClient(null);
       });
     }
-  }, [isLoggedIn, hasClientConnected, chatClient, isTournamentActive]);
+  }, [isLoggedIn, hasClientConnected, chatClient, formRef, toast, betCount]);
 
   const handleStartClientClick = () => {
+    const token = formRef.current.values.token;
+    const username = formRef.current.values.username;
+    if (token && username && formRef.current.values.rememberMe) {
+      localStorage.setItem(
+        "twitchChatCreds",
+        JSON.stringify({ token, username })
+      );
+    }
+    if (!formRef.current.values.rememberMe) {
+      localStorage.removeItem("twitchChatCreds");
+    }
     setIsLoggedIn(true);
-    setIsTournamentComplete(false);
   };
 
   const handleStopClientClick = () => {
@@ -125,99 +188,106 @@ export const AutomatorForm = () => {
 
   return (
     <div>
-      <Container marginTop={20}>
-        <Link
-          verticalAlign="center"
-          href="https://twitchapps.com/tmi/"
-          isExternal
-        >
-          Click here to get your Twitch token
-          <ExternalLinkIcon mx="2px" />
-        </Link>
-        <Formik
-          enableReinitialize
-          onSubmit={() => {}}
-          initialValues={initialValues}
-          innerRef={formRef}
-        >
-          {({ values, handleChange }) => (
-            <Form>
-              <Stack direction="row" spacing={5} mt={5}>
-                <FormControl variant="floating">
-                  <Field name="token">
-                    {({ field }: any) => (
-                      <InputGroup>
-                        <Input
-                          {...field}
-                          placeholder=" "
-                          type={showPassword ? "text" : "password"}
-                        />
-                        <FormLabel>Twitch Token</FormLabel>
-                        <InputRightElement width="2.5rem">
-                          {/* {showPassword ? <ViewIcon /> : <ViewOffIcon />} */}
-                          <IconButton
-                            h="1.75rem"
-                            size="xs"
-                            onClick={handleShowPasswordClick}
-                            icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                            aria-label={"view token"}
-                            bg="clear"
-                          ></IconButton>
-                        </InputRightElement>
-                      </InputGroup>
-                    )}
-                  </Field>
-                </FormControl>
-                <FormControl marginTop={5} variant="floating">
-                  <Field name="username">
-                    {({ field }: any) => (
-                      <>
-                        <Input {...field} placeholder=" " />
-                        <FormLabel>Twitch Username</FormLabel>
-                      </>
-                    )}
-                  </Field>
-                </FormControl>
-              </Stack>
-              <Tabs isFitted mt={2}>
-                <TabList>
-                  {Object.values(TabItems).map((tab) => (
-                    <Tab key={tab}>{tab}</Tab>
-                  ))}
-                </TabList>
-                <TabPanels>
-                  <TabPanel>
-                    <BettingTab formValues={formRef?.current?.values ?? {}} />
-                  </TabPanel>
-                  <TabPanel>
-                    <FightingTab formValues={formRef?.current?.values ?? {}} />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-              <Center>
-                <ButtonGroup marginTop={5}>
-                  <Button
-                    width="8rem"
-                    disabled={isLoggedIn}
-                    onClick={() => {
-                      handleStartClientClick();
-                    }}
-                  >
-                    Start
-                  </Button>
-                  <Button
-                    disabled={!isLoggedIn}
-                    onClick={handleStopClientClick}
-                    width="8rem"
-                  >
-                    End
-                  </Button>
-                </ButtonGroup>
-              </Center>
-            </Form>
-          )}
-        </Formik>
-      </Container>
+      <Link
+        verticalAlign="center"
+        href="https://twitchapps.com/tmi/"
+        isExternal
+      >
+        Click here to get your Twitch token
+        <ExternalLinkIcon mx="2px" />
+      </Link>
+      <Formik
+        enableReinitialize
+        onSubmit={() => {}}
+        initialValues={initialValues}
+        innerRef={formRef}
+      >
+        {({ values }) => (
+          <Form>
+            <Stack direction="row" spacing={5} mt={5}>
+              <FormControl variant="floating">
+                <Field name="token">
+                  {({ field }: FieldAttributes<any>) => (
+                    <InputGroup>
+                      <Input
+                        {...field}
+                        placeholder=" "
+                        type={showPassword ? "text" : "password"}
+                      />
+                      <FormLabel>Twitch Token</FormLabel>
+                      <InputRightElement width="2.5rem">
+                        <IconButton
+                          h="1.75rem"
+                          size="xs"
+                          onClick={handleShowPasswordClick}
+                          icon={showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                          aria-label={"view token"}
+                          bg="clear"
+                        ></IconButton>
+                      </InputRightElement>
+                    </InputGroup>
+                  )}
+                </Field>
+              </FormControl>
+              <FormControl marginTop={5} variant="floating">
+                <Field name="username">
+                  {({ field }: FieldAttributes<any>) => (
+                    <>
+                      <Input {...field} placeholder=" " />
+                      <FormLabel>Twitch Username</FormLabel>
+                    </>
+                  )}
+                </Field>
+              </FormControl>
+            </Stack>
+            <Flex flexDir="row" mt={2}>
+              <Field name="rememberMe">
+                {({ field }: FieldAttributes<any>) => (
+                  <Checkbox {...field} defaultChecked={!!twitchChatCreds} />
+                )}
+              </Field>
+              <FormLabel ml={1} mb={0}>
+                Remember Me
+              </FormLabel>
+            </Flex>
+            <Tabs isFitted mt={2}>
+              <TabList>
+                {Object.values(TabItems).map((tab) => (
+                  <Tab key={tab}>{tab}</Tab>
+                ))}
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <BettingTab formValues={values} betCount={betCount} />
+                </TabPanel>
+                <TabPanel>
+                  <FightingTab formValues={values} />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+            <Center>
+              <ButtonGroup mt={5}>
+                <Button
+                  width="8rem"
+                  disabled={isLoggedIn}
+                  onClick={() => {
+                    handleStartClientClick();
+                  }}
+                >
+                  Start
+                </Button>
+                <Button
+                  disabled={!isLoggedIn}
+                  onClick={handleStopClientClick}
+                  width="8rem"
+                >
+                  End
+                </Button>
+              </ButtonGroup>
+            </Center>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };

@@ -1,10 +1,11 @@
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
-import { Center, Stack } from "@chakra-ui/layout";
-import { Field } from "formik";
+import { Center } from "@chakra-ui/layout";
+import { Field, FieldAttributes } from "formik";
 import { FighterTypes, jobs, monsters } from "./consts";
 import { Switch } from "@chakra-ui/switch";
 import { Select } from "chakra-react-select";
 import { getFightTextFromInput } from "./helpers";
+import { Flex, Input } from "@chakra-ui/react";
 
 export type FightingTabPropsType = {
   formValues: any;
@@ -12,6 +13,7 @@ export type FightingTabPropsType = {
 
 export const FightingTab = ({ formValues }: FightingTabPropsType) => {
   const fighterGroups = [
+    { label: "Misc", options: [{ label: "Random", value: " " }] },
     {
       label: FighterTypes.HUMAN,
       options: jobs,
@@ -24,18 +26,14 @@ export const FightingTab = ({ formValues }: FightingTabPropsType) => {
 
   return (
     <>
-      <Field type="checkbox" name="fight">
-        {({ field }: any) => (
-          <FormControl>
-            <Stack direction="row">
-              <FormLabel>Enable fighting?</FormLabel>
-              <Switch {...field}></Switch>
-            </Stack>
-          </FormControl>
-        )}
-      </Field>
+      <Flex flexDir="row">
+        <Field name="fight" as={Switch} />
+        <FormLabel mb={0} ml={2}>
+          Enable fighting
+        </FormLabel>
+      </Flex>
       <Field name="fighterType">
-        {({ field, form }: any) => (
+        {({ field, form }: FieldAttributes<any>) => (
           <FormControl pt={5}>
             <FormLabel>Fighter Type</FormLabel>
             <Select
@@ -58,13 +56,24 @@ export const FightingTab = ({ formValues }: FightingTabPropsType) => {
           </FormControl>
         )}
       </Field>
-      <Center>
-        {formValues?.fighterType?.value && (
-          <span>
-            <strong>Example:</strong>{" "}
-            {getFightTextFromInput(formValues.fighterType.value)}
-          </span>
-        )}
+      <FormControl mt={5}>
+        <FormLabel>Extra Parameters</FormLabel>
+        <Field name="fighterParameters">
+          {({ field }: FieldAttributes<any>) => (
+            <>
+              <Input {...field} placeholder="i.e. gearedup -preferredarms" />
+            </>
+          )}
+        </Field>
+      </FormControl>
+      <Center mt={3}>
+        <span>
+          <strong>Chat Text: </strong>
+          {getFightTextFromInput(
+            formValues?.fighterType?.value ?? "",
+            formValues?.fighterParameters ?? ""
+          )}
+        </span>
       </Center>
     </>
   );
