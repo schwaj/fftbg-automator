@@ -101,6 +101,9 @@ export const AutomatorForm = () => {
               if (
                 lowerMessage.includes(
                   "you may now !fight to enter the tournament!"
+                ) ||
+                lowerMessage.includes(
+                  "the !fight command can now be used to enter the upcoming tournament"
                 )
               ) {
                 if (!isTournamentActive) {
