@@ -6,7 +6,6 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.0.14",
     "@chakra-ui/react": "^2.4.4",
-    "@choc-ui/chakra-autocomplete": "^5.1.4",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@testing-library/jest-dom": "^5.16.5",
@@ -16,6 +15,7 @@
     "@types/node": "^12.20.55",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
+    "chakra-react-select": "^4.4.3",
     "formik": "^2.2.9",
     "framer-motion": "^6.5.1",
     "react": "^18.2.0",
