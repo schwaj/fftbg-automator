@@ -74,7 +74,7 @@ export const AutomatorForm = () => {
         ?.connect()
         .then(() => {
           let isTournamentActive = false;
-          let isTournamentComplete = false;
+          let betCounter = 0;
           setHasClientConnected(true);
           chatClient.on("message", (channel, tags, message, self) => {
             if (self) return;
@@ -94,7 +94,8 @@ export const AutomatorForm = () => {
                       formRef.current.values.target
                     )
                   );
-                  setBetCount(betCount + 1);
+                  betCounter++;
+                  setBetCount(betCounter);
                 });
               }
               if (
@@ -124,7 +125,6 @@ export const AutomatorForm = () => {
               if (isTournamentActive) {
                 chatClient?.disconnect().then(() => {
                   isTournamentActive = false;
-                  isTournamentComplete = true;
                   setHasClientConnected(false);
                   setIsLoggedIn(false);
                   setChatClient(null);
