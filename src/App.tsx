@@ -5,11 +5,9 @@ import { theme } from "./theme";
 
 export const App = () => (
   <ChakraProvider theme={theme}>
-    <Box h="calc(100vh)">
-      <Header />
-      <Container py={20} bgColor="white">
-        <AutomatorForm />
-      </Container>
-    </Box>
+    <Header />
+    <Container py={20} h="calc(100vh - 60px)" bgColor="gray.700">
+      <AutomatorForm />
+    </Container>
   </ChakraProvider>
 );

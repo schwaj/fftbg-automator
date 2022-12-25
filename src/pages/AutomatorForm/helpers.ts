@@ -3,8 +3,8 @@ export const getBetTextFromInput = (amount: string, target: string): string => {
 };
 
 export const getFightTextFromInput = (
-  fighterType: string,
-  fighterParameters: string
+  fighterType: string | undefined,
+  fighterParameters: string | undefined
 ): string => {
-  return `!fight ${fighterType} ${fighterParameters ?? ""}`.trim();
+  return `!fight ${fighterType ?? ""} ${fighterParameters ?? ""}`.trim();
 };

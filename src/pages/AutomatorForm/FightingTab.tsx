@@ -70,8 +70,8 @@ export const FightingTab = ({ formValues }: FightingTabPropsType) => {
         <span>
           <strong>Chat Text: </strong>
           {getFightTextFromInput(
-            formValues?.fighterType?.value ?? "",
-            formValues?.fighterParameters ?? ""
+            formValues.fighterType.value,
+            formValues.fighterParameters
           )}
         </span>
       </Center>

@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, IconButton } from "@chakra-ui/button";
+import { Button, IconButton } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { Center, Link, Stack } from "@chakra-ui/layout";
@@ -162,23 +162,23 @@ export const AutomatorForm = () => {
     }
   }, [isLoggedIn, hasClientConnected, chatClient, formRef, toast, betCount]);
 
-  const handleStartClientClick = () => {
-    const token = formRef.current.values.token;
-    const username = formRef.current.values.username;
-    if (token && username && formRef.current.values.rememberMe) {
-      localStorage.setItem(
-        "twitchChatCreds",
-        JSON.stringify({ token, username })
-      );
+  const handleOnSubmit = () => {
+    if (isLoggedIn) {
+      setIsLoggedIn(false);
+    } else {
+      const token = formRef.current.values.token;
+      const username = formRef.current.values.username;
+      if (token && username && formRef.current.values.rememberMe) {
+        localStorage.setItem(
+          "twitchChatCreds",
+          JSON.stringify({ token, username })
+        );
+      }
+      if (!formRef.current.values.rememberMe) {
+        localStorage.removeItem("twitchChatCreds");
+      }
+      setIsLoggedIn(true);
     }
-    if (!formRef.current.values.rememberMe) {
-      localStorage.removeItem("twitchChatCreds");
-    }
-    setIsLoggedIn(true);
-  };
-
-  const handleStopClientClick = () => {
-    setIsLoggedIn(false);
   };
 
   return (
@@ -193,7 +193,7 @@ export const AutomatorForm = () => {
       </Link>
       <Formik
         enableReinitialize
-        onSubmit={() => {}}
+        onSubmit={handleOnSubmit}
         initialValues={initialValues}
         innerRef={formRef}
       >
@@ -261,24 +261,13 @@ export const AutomatorForm = () => {
               </TabPanels>
             </Tabs>
             <Center>
-              <ButtonGroup mt={5}>
-                <Button
-                  width="8rem"
-                  disabled={isLoggedIn}
-                  onClick={() => {
-                    handleStartClientClick();
-                  }}
-                >
-                  Start
-                </Button>
-                <Button
-                  disabled={!isLoggedIn}
-                  onClick={handleStopClientClick}
-                  width="8rem"
-                >
-                  End
-                </Button>
-              </ButtonGroup>
+              <Button
+                type="submit"
+                width="8rem"
+                bgColor={isLoggedIn ? "red.800" : "green.700"}
+              >
+                {isLoggedIn ? "Stop" : "Start"}
+              </Button>
             </Center>
           </Form>
         )}

@@ -20,7 +20,7 @@ export const Header = () => {
           <Text
             textAlign={useBreakpointValue({ base: "center", md: "left" })}
             fontFamily={"heading"}
-            color={useColorModeValue("gray.800", "white")}
+            color={useColorModeValue("gray.800", "gray.300")}
           >
             FFT Battleground Automator
           </Text>

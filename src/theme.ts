@@ -1,9 +1,21 @@
-import { extendTheme } from "@chakra-ui/theme-utils";
+import { extendTheme } from "@chakra-ui/react";
 
 const activeLabelStyles = {
   transform: "scale(0.85) translateY(-24px)",
 };
+
 export const theme = extendTheme({
+  styles: {
+    global: {
+      body: {
+        color: "gray.300",
+      },
+    },
+  },
+  config: {
+    initialColorMode: "dark",
+    useSystemColorMode: false,
+  },
   components: {
     Form: {
       variants: {
@@ -23,7 +35,7 @@ export const theme = extendTheme({
               left: 0,
               zIndex: 2,
               position: "absolute",
-              backgroundColor: "white",
+              backgroundColor: "gray.700",
               pointerEvents: "none",
               mx: 3,
               px: 1,
