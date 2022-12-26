@@ -1,8 +1,11 @@
 import { useColorModeValue } from "@chakra-ui/color-mode";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { Box, Flex, Text } from "@chakra-ui/layout";
 import { useBreakpointValue } from "@chakra-ui/media-query";
+import { IconButton, useColorMode } from "@chakra-ui/react";
 
 export const Header = () => {
+  const { toggleColorMode } = useColorMode();
   return (
     <Box>
       <Flex
@@ -15,6 +18,7 @@ export const Header = () => {
         borderStyle={"solid"}
         borderColor={useColorModeValue("gray.200", "gray.900")}
         align={"center"}
+        justifyContent="space-between"
       >
         <Flex flex={{ base: 1 }} justify={{ base: "center", md: "start" }}>
           <Text
@@ -24,6 +28,13 @@ export const Header = () => {
           >
             FFT Battleground Automator
           </Text>
+        </Flex>
+        <Flex>
+          <IconButton
+            icon={useColorModeValue(<MoonIcon />, <SunIcon />)}
+            aria-label={"toggle color mode"}
+            onClick={toggleColorMode}
+          ></IconButton>
         </Flex>
       </Flex>
     </Box>

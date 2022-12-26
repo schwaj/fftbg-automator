@@ -261,13 +261,15 @@ export const AutomatorForm = () => {
               </TabPanels>
             </Tabs>
             <Center>
-              <Button
-                type="submit"
-                width="8rem"
-                bgColor={isLoggedIn ? "red.800" : "green.700"}
-              >
-                {isLoggedIn ? "Stop" : "Start"}
-              </Button>
+              {isLoggedIn ? (
+                <Button type="submit" width="8rem" colorScheme={"red"}>
+                  {"Stop"}
+                </Button>
+              ) : (
+                <Button type="submit" width="8rem" colorScheme={"green"}>
+                  {"Start"}
+                </Button>
+              )}
             </Center>
           </Form>
         )}
