@@ -1,19 +1,16 @@
-import { Button, IconButton } from "@chakra-ui/button";
-import { FormControl, FormLabel } from "@chakra-ui/form-control";
-import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
-import { Center, Link, Stack } from "@chakra-ui/layout";
-import { Field, FieldAttributes, Form, Formik, FormikValues } from "formik";
-import { useEffect, useRef, useState } from "react";
+import { Button } from "@chakra-ui/button";
+import { Center } from "@chakra-ui/layout";
+import { Form, Formik, FormikValues } from "formik";
+import { useEffect, useRef, useState, useContext } from "react";
 import { Client } from "tmi.js";
 import { sleep } from "../../utils/sleepUtil";
 import { betAmounts, betTargets, TabItems } from "./consts";
 import { getBetTextFromInput, getFightTextFromInput } from "./helpers";
-import { ExternalLinkIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import { BettingTab } from "./BettingTab";
 import { FightingTab } from "./FightingTab";
 import { useToast } from "@chakra-ui/toast";
-import { Checkbox, Flex } from "@chakra-ui/react";
+import { AuthContext } from "../../contexts/AuthContext";
 
 export type FormValuesType = {
   token: string;
@@ -42,15 +39,13 @@ const initialValues = {
 
 export const AutomatorForm = () => {
   const toast = useToast();
-  const [showPassword, setShowPassword] = useState(false);
+  const { accessToken, username } = useContext(AuthContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasClientConnected, setHasClientConnected] = useState(false);
   const [chatClient, setChatClient] = useState<Client | null>(null);
   const [betCount, setBetCount] = useState(0);
   const [hasEnteredFight, setHasEnteredFight] = useState(false);
   const formRef = useRef<FormikValues>() as any;
-
-  const handleShowPasswordClick = () => setShowPassword(!showPassword);
 
   useEffect(() => {
     if (!chatClient && isLoggedIn) {
@@ -62,8 +57,8 @@ export const AutomatorForm = () => {
         },
 
         identity: {
-          username: formRef.current.values.username,
-          password: formRef.current.values.token,
+          username: username ?? "",
+          password: accessToken ?? "",
         },
 
         channels: ["FFTBattleground"],
@@ -162,7 +157,16 @@ export const AutomatorForm = () => {
         setChatClient(null);
       });
     }
-  }, [isLoggedIn, hasClientConnected, chatClient, formRef, toast, betCount]);
+  }, [
+    isLoggedIn,
+    hasClientConnected,
+    chatClient,
+    formRef,
+    toast,
+    betCount,
+    username,
+    accessToken,
+  ]);
 
   const handleOnSubmit = () => {
     if (isLoggedIn) {
@@ -184,15 +188,7 @@ export const AutomatorForm = () => {
   };
 
   return (
-    <div>
-      <Link
-        verticalAlign="center"
-        href="https://twitchapps.com/tmi/"
-        isExternal
-      >
-        Click here to get your Twitch token
-        <ExternalLinkIcon mx="2px" />
-      </Link>
+    <>
       <Formik
         enableReinitialize
         onSubmit={handleOnSubmit}
@@ -201,52 +197,6 @@ export const AutomatorForm = () => {
       >
         {({ values }) => (
           <Form>
-            <Stack direction="row" spacing={5} mt={5}>
-              <FormControl variant="floating">
-                <Field name="token">
-                  {({ field }: FieldAttributes<any>) => (
-                    <InputGroup>
-                      <Input
-                        {...field}
-                        placeholder=" "
-                        type={showPassword ? "text" : "password"}
-                      />
-                      <FormLabel>Twitch Token</FormLabel>
-                      <InputRightElement width="2.5rem">
-                        <IconButton
-                          h="1.75rem"
-                          size="xs"
-                          onClick={handleShowPasswordClick}
-                          icon={showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                          aria-label={"view token"}
-                          bg="clear"
-                        ></IconButton>
-                      </InputRightElement>
-                    </InputGroup>
-                  )}
-                </Field>
-              </FormControl>
-              <FormControl marginTop={5} variant="floating">
-                <Field name="username">
-                  {({ field }: FieldAttributes<any>) => (
-                    <>
-                      <Input {...field} placeholder=" " />
-                      <FormLabel>Twitch Username</FormLabel>
-                    </>
-                  )}
-                </Field>
-              </FormControl>
-            </Stack>
-            <Flex flexDir="row" mt={2}>
-              <Field name="rememberMe">
-                {({ field }: FieldAttributes<any>) => (
-                  <Checkbox {...field} defaultChecked={!!twitchChatCreds} />
-                )}
-              </Field>
-              <FormLabel ml={1} mb={0}>
-                Remember Me
-              </FormLabel>
-            </Flex>
             <Tabs isFitted mt={2}>
               <TabList>
                 {Object.values(TabItems).map((tab) => (
@@ -279,6 +229,6 @@ export const AutomatorForm = () => {
           </Form>
         )}
       </Formik>
-    </div>
+    </>
   );
 };
