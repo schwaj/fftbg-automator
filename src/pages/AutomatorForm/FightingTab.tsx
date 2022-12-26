@@ -5,13 +5,18 @@ import { FighterTypes, jobs, monsters } from "./consts";
 import { Switch } from "@chakra-ui/switch";
 import { Select } from "chakra-react-select";
 import { getFightTextFromInput } from "./helpers";
-import { Flex, Input } from "@chakra-ui/react";
+import { Box, Flex, Input } from "@chakra-ui/react";
+import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
 export type FightingTabPropsType = {
   formValues: any;
+  hasEnteredFight: boolean;
 };
 
-export const FightingTab = ({ formValues }: FightingTabPropsType) => {
+export const FightingTab = ({
+  formValues,
+  hasEnteredFight,
+}: FightingTabPropsType) => {
   const fighterGroups = [
     { label: "Misc", options: [{ label: "Random", value: " " }] },
     {
@@ -26,11 +31,21 @@ export const FightingTab = ({ formValues }: FightingTabPropsType) => {
 
   return (
     <>
-      <Flex flexDir="row">
-        <Field name="fight" as={Switch} />
-        <FormLabel mb={0} ml={2}>
-          Enable fighting
-        </FormLabel>
+      <Flex flexDir="row" justifyContent={"space-between"}>
+        <Box display="flex">
+          <Field name="fight" as={Switch} />
+          <FormLabel mb={0} ml={2}>
+            Enable fighting
+          </FormLabel>
+        </Box>
+        <Box display="flex" alignItems={"center"}>
+          <FormLabel mb={0}>Fight Entered: </FormLabel>
+          {hasEnteredFight ? (
+            <CheckIcon color="green" />
+          ) : (
+            <CloseIcon color={"red"} />
+          )}
+        </Box>
       </Flex>
       <Field name="fighterType">
         {({ field, form }: FieldAttributes<any>) => (

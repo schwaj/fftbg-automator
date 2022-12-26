@@ -11,7 +11,7 @@ export const Header = () => {
       <Flex
         bg={useColorModeValue("white", "gray.800")}
         color={useColorModeValue("gray.600", "white")}
-        minH={"60px"}
+        minH={15}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}

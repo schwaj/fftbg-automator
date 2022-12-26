@@ -47,6 +47,7 @@ export const AutomatorForm = () => {
   const [hasClientConnected, setHasClientConnected] = useState(false);
   const [chatClient, setChatClient] = useState<Client | null>(null);
   const [betCount, setBetCount] = useState(0);
+  const [hasEnteredFight, setHasEnteredFight] = useState(false);
   const formRef = useRef<FormikValues>() as any;
 
   const handleShowPasswordClick = () => setShowPassword(!showPassword);
@@ -118,6 +119,7 @@ export const AutomatorForm = () => {
                         formRef.current.values.fighterParameters
                       )
                     );
+                    setHasEnteredFight(true);
                   });
                 }
               }
@@ -256,7 +258,10 @@ export const AutomatorForm = () => {
                   <BettingTab formValues={values} betCount={betCount} />
                 </TabPanel>
                 <TabPanel>
-                  <FightingTab formValues={values} />
+                  <FightingTab
+                    formValues={values}
+                    hasEnteredFight={hasEnteredFight}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>

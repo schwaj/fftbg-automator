@@ -1,9 +1,4 @@
-import {
-  ChakraProvider,
-  Container,
-  Box,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { ChakraProvider, Container } from "@chakra-ui/react";
 import { AutomatorForm } from "./pages/AutomatorForm/AutomatorForm";
 import { Header } from "./components/Header";
 import { theme } from "./theme";
