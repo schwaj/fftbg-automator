@@ -23,12 +23,7 @@ export type FormValuesType = {
   fighterParameters: string;
 };
 
-const twitchChatCreds = localStorage.getItem("twitchChatCreds");
-const parsedTiwtchCreds = JSON.parse(twitchChatCreds ?? "{}");
-
 const initialValues = {
-  token: !!twitchChatCreds ? parsedTiwtchCreds.token : "",
-  username: !!twitchChatCreds ? parsedTiwtchCreds.username : "",
   bet: true,
   amount: betAmounts[0].value,
   target: betTargets[0].value,
