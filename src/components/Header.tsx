@@ -1,12 +1,13 @@
 import { useColorModeValue } from "@chakra-ui/color-mode";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { Box, Flex, HStack, Link, Text } from "@chakra-ui/layout";
 import { useBreakpointValue } from "@chakra-ui/media-query";
-import { Avatar, Button, IconButton, useColorMode } from "@chakra-ui/react";
+import { Avatar, Button } from "@chakra-ui/react";
 import axios from "axios";
 import qs from "qs";
 import { useContext, useEffect } from "react";
+import { FaTwitch } from "react-icons/fa";
 import { AuthContext } from "../contexts/AuthContext";
+import { isDev } from "../utils/environmentUtil";
 
 export const Header = () => {
   const {
@@ -16,9 +17,12 @@ export const Header = () => {
     profileImageUrl,
     setProfileImageUrl,
   } = useContext(AuthContext);
-  const { toggleColorMode } = useColorMode();
-  const twitchAuthUrl =
-    "https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=tientobnk7149q8q9on9w5bqshhn3d&redirect_uri=https://schwaj.github.io/fftbg-automator/&scope=chat%3Aread+chat%3Aedit";
+  const twitchAuthUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=tientobnk7149q8q9on9w5bqshhn3d&redirect_uri=${
+    isDev()
+      ? "http://localhost:3000/fftbg-automator"
+      : "https://schwaj.github.io/fftbg-automator/"
+  }&scope=chat%3Aread+chat%3Aedit`;
+  console.log({ twitchAuthUrl });
 
   useEffect(() => {
     const token =
@@ -67,19 +71,15 @@ export const Header = () => {
           {profileImageUrl ? (
             <Avatar name={username ?? ""} src={profileImageUrl} h={10} w={10} />
           ) : (
-            <Button mr={5} colorScheme={"purple"}>
-              <Link href={twitchAuthUrl}>Login with Twitch</Link>
-            </Button>
+            <Link style={{ textDecoration: "none" }} href={twitchAuthUrl}>
+              <Button mr={5} colorScheme={"purple"}>
+                <Flex>
+                  <FaTwitch />
+                  <Box ml={2}>Login</Box>
+                </Flex>
+              </Button>
+            </Link>
           )}
-          <IconButton
-            bg={"chakra-body-bg"}
-            icon={useColorModeValue(
-              <MoonIcon />,
-              <SunIcon bg={"chakra-body-bg"} />
-            )}
-            aria-label={"toggle color mode"}
-            onClick={toggleColorMode}
-          ></IconButton>
         </HStack>
       </Flex>
     </Box>
