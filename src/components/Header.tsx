@@ -22,7 +22,6 @@ export const Header = () => {
       ? "http://localhost:3000/fftbg-automator"
       : "https://schwaj.github.io/fftbg-automator/"
   }&scope=chat%3Aread+chat%3Aedit`;
-  console.log({ twitchAuthUrl });
 
   useEffect(() => {
     const token =

@@ -1,13 +1,13 @@
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Button,
   Flex,
+  HStack,
   IconButton,
   Link,
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { FaGithub } from "react-icons/fa";
 
 export const Footer = () => {
   const { toggleColorMode } = useColorMode();
@@ -41,7 +41,11 @@ export const Footer = () => {
         </Link>
       </Flex>
       <Flex w={"30%"} justifyContent={"flex-end"}>
-        <small>&copy; Copyright {new Date().getFullYear()}, Schwaj Inc.</small>
+        <HStack spacing={2}>
+          <Link href="https://github.com/schwaj" target={"_blank"}>
+            <FaGithub />
+          </Link>
+        </HStack>
       </Flex>
     </Flex>
   );
